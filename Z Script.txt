@@ -1,0 +1,123 @@
+-- LocalScript en StarterGui
+
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+-- Crear el ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MenuScreenGui"
+screenGui.Parent = playerGui
+
+-- Crear el marco principal
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 400, 0, 400) -- Ajustado para incluir más botones
+frame.Position = UDim2.new(0.5, -200, 0.5, -200)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BackgroundTransparency = 0.8
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+-- Crear el título
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0.3, 0)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Z Scripts"
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.Garamond
+titleLabel.TextStrokeTransparency = 0.5
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.Parent = frame
+
+-- Crear el contenedor de la lista de scripts
+local list = Instance.new("Frame")
+list.Size = UDim2.new(1, 0, 0.6, 0)
+list.Position = UDim2.new(0, 0, 0.3, 0)
+list.BackgroundTransparency = 1
+list.Parent = frame
+
+-- Lista de scripts y botones
+local scripts = {
+    {name = "OWL HUB", url = "https://raw.githubusercontent.com/CriShoux/OwlHub/master/OwlHub.txt"},
+    {name = "SOLARIS", url = "https://scriptblox.com/raw/Counter-Blox-Solaris-14633"},
+    {name = "UNNAMED ESP", url = "https://raw.githubusercontent.com/ic3w0lf22/Unnamed-ESP/master/UnnamedESP.lua"},
+    {name = "VIXX AIMLOCK", url = "https://raw.githubusercontent.com/Zeduarksito/Zeduark/main/Vixx%20Aimlock.txt"},
+    {name = "ARSENAL FARM", url = "https://raw.githubusercontent.com/AdvanceFTeam/Our-Scripts/main/AdvanceTech/Arsenal_V1.6.lua"},
+    {name = "INFINITE YIELD", url = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}
+}
+
+local yOffset = 0
+
+for _, scriptInfo in ipairs(scripts) do
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0.16, 0) -- Ajustado para añadir más botones
+    button.Position = UDim2.new(0, 0, yOffset, 0)
+    button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    button.BackgroundTransparency = 0.5
+    button.Text = scriptInfo.name
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextScaled = true
+    button.Font = Enum.Font.Garamond
+    button.Parent = list
+
+    button.MouseButton1Click:Connect(function()
+        local success, result = pcall(function()
+            loadstring(game:HttpGet(scriptInfo.url))()
+        end)
+
+        if not success then
+            print("Error al ejecutar el script " .. scriptInfo.name .. ": " .. result)
+        else
+            print(scriptInfo.name .. " script ejecutado.")
+        end
+    end)
+
+    yOffset = yOffset + 0.16
+end
+
+-- Crear el texto de autor
+local authorLabel = Instance.new("TextLabel")
+authorLabel.Size = UDim2.new(1, 0, 0.1, 0)
+authorLabel.Position = UDim2.new(0, 0, 0.9, 0)
+authorLabel.BackgroundTransparency = 1
+authorLabel.Text = "Made by Zeduarks"
+authorLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+authorLabel.TextScaled = true
+authorLabel.TextXAlignment = Enum.TextXAlignment.Right
+authorLabel.Font = Enum.Font.Garamond
+authorLabel.Parent = frame
+
+-- Función para animar el título en colores arcoíris
+local function animateTitle()
+    while true do
+        for i = 1, 360, 1 do
+            titleLabel.TextColor3 = Color3.fromHSV(i / 360, 1, 1)
+            wait(0.05)
+        end
+    end
+end
+
+-- Repetir la animación del título
+spawn(animateTitle)
+
+-- Función para ocultar/mostrar el menú con animación
+local menuVisible = true
+local function toggleMenu()
+    local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    local tweenGoal = {Size = menuVisible and UDim2.new(0, 0, 0, 0) or UDim2.new(0, 400, 0, 400)}
+    local tween = TweenService:Create(frame, tweenInfo, tweenGoal)
+    tween:Play()
+    
+    tween.Completed:Connect(function()
+        menuVisible = not menuVisible
+    end)
+end
+
+-- Toggle menu visibility with "K" key
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.K and not gameProcessed then
+        toggleMenu()
+    end
+end)
